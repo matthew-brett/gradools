@@ -1,0 +1,18 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "gradools"
+author = "Matthew Brett"
+author-email = "matthew.brett@gmail.com"
+classifiers = ["License :: OSI Approved :: BSD License"]
+description-file="README.md"
+
+[tool.flit.scripts]
+gdo-check = "gradools.check:main"
+gdo-year = "gradools.mconfig:print_year"
+gdo-mkstable = "gradools.mstable:main"
+gdo-stinit = "gradools.stinit:main"
+gdo-mkfb = "gradools.mkfb:main"
+gdo-report = "gradools.report:main"
