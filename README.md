@@ -9,7 +9,7 @@ Example:
 ```
 log = "markingb_log.md"
 year = "2018"
-assignment = "Data Analysis Due (140634)"
+assignment = "Data Analysis Due (000000)"
 
 [fudges]
 2018 = 10
