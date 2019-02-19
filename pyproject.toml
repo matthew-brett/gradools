@@ -12,7 +12,7 @@ description-file="README.md"
 [tool.flit.scripts]
 gdo-check = "gradools.check:main"
 gdo-year = "gradools.mconfig:print_year"
-gdo-mkstable = "gradools.mstable:main"
+gdo-mkstable = "gradools.mkstable:main"
 gdo-stinit = "gradools.stinit:main"
 gdo-mkfb = "gradools.mkfb:main"
 gdo-report = "gradools.report:main"
