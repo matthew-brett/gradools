@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Generate initial marking scheme and notebook for student
+""" Generate initial marking scheme, maybe notebook for student
 """
 
 from os.path import exists, join as pjoin
@@ -12,11 +12,22 @@ from .mconfig import SCORE_LINES, get_students
 
 def get_init(student_id):
     students = get_students()
-    student = students.loc[students['SIS Login ID'] == student_id]
-    if len(student) == 0:
+    # Try login ID, then User ID, then name
+    for field in ('SIS Login ID', 'SIS User ID', 'Student'):
+        # Coerce to matching dtype
+        try:
+            st_id = students[field].dtype.type(student_id)
+        except ValueError:
+            continue
+        these = students.loc[students[field] == st_id]
+        if len(these) == 1:
+            break
+        elif len(these) > 1:
+            raise RuntimeError(f"More than one match for {student_id}")
+    else:
         raise RuntimeError(f"Cannot find student {student_id}")
-    name = student['Student'].iloc[0]
-    return f'## {student_id}\n\n{SCORE_LINES}\n\nTotal: \n\n{name}\n\n'
+    name, login = these[['Student', 'SIS Login ID']].iloc[0]
+    return f'## {login}\n\n{SCORE_LINES}\n\nTotal: \n\n{name}\n\n'
 
 
 def write_notebook(login, nb_fname):
