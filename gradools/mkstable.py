@@ -13,8 +13,12 @@ def main():
     parser.add_argument(
         "--aname", help="Name of our assignment")
     parser.add_argument(
-        "-o", "--output", default='student.csv', help="Path for output file")
+        "-o", "--output", help="Path for output file")
     args = parser.parse_args()
+    if args.aname is None or args.output is None:
+        from .mconfig import CONFIG, STUDENT_FNAME
+        args.aname = args.aname if args.aname else CONFIG['assignment']
+        args.output = args.output if args.output else STUDENT_FNAME
     if args.aname is None:
         from .mconfig import CONFIG
         args.aname = CONFIG['assignment']

@@ -27,13 +27,14 @@ def read_config():
 
 CONFIG = read_config()
 MARKING_LOG = CONFIG['log']
+STUDENT_FNAME = f'students_{CONFIG["year"]}.csv'
 
 
 def get_students():
-    if not exists('student.csv'):
+    if not exists(STUDENT_FNAME):
         raise RuntimeError('Run gdo-mkstable here')
     import pandas as pd
-    return pd.read_csv('student.csv')
+    return pd.read_csv(STUDENT_FNAME)
 
 
 def make_runs(params, loc_params):
