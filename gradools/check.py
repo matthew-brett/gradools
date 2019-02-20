@@ -84,29 +84,6 @@ def get_lists(contents, required_fields, optional_fields):
     return lists, '\n'.join(msg_lines)
 
 
-def test_get_lists():
-    res, msg = get_lists('', ('foo', 'bar'), ())
-    assert res == {}
-    assert msg == ''
-    res, msg = get_lists("""
-
-## someone
-
-* foo : 13
-""", ('foo', 'bar'), ())
-    assert msg == ("Required field bar not present\n"
-                   "Expecting total 13.0 for someone")
-    res, msg = get_lists("""
-
-## someone
-
-* baz : 13
-""", ('foo', 'bar'), ())
-    assert msg == ("Did not expect key: 'baz' here\n"
-                   "Required fields bar, foo not present\n"
-                   "Expecting total 13.0 for someone")
-
-
 def main():
     log = sys.argv[1] if len(sys.argv) > 1 else MARKING_LOG
     print(check_totals(log))
