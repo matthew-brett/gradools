@@ -5,10 +5,7 @@ import sys
 
 from collections import OrderedDict
 
-from .mconfig import O_SCORES, E_SCORES, MARKING_LOG, proc_line
-
-REQUIRED_FIELDS = list(O_SCORES)
-OPTIONAL_FIELDS = list(E_SCORES)
+from .mconfig import CONFIG, proc_line
 
 
 def check_totals(fname):
@@ -21,10 +18,11 @@ def check_totals(fname):
     return '\n'.join(out)
 
 
-def checked_totals(fname):
+def checked_totals(fname, config=CONFIG):
     with open(fname, 'rt') as fobj:
         contents = fobj.read()
-    lists, msg = get_lists(contents, REQUIRED_FIELDS, OPTIONAL_FIELDS)
+    required, optional = CONFIG.scores
+    lists, msg = get_lists(contents, list(required), list(optional))
     totals = OrderedDict()
     for name, marks in lists.items():
         totals[name] = sum(marks.values())
@@ -85,5 +83,5 @@ def get_lists(contents, required_fields, optional_fields):
 
 
 def main():
-    log = sys.argv[1] if len(sys.argv) > 1 else MARKING_LOG
+    log = sys.argv[1] if len(sys.argv) > 1 else CONFIG.marking_log
     print(check_totals(log))

@@ -1,26 +1,38 @@
 """ Report marks
 """
+from os.path import exists
+from collections import OrderedDict
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
-from .mconfig import CONFIG, read_totals, get_students
+from .mconfig import CONFIG
 from .check import checked_totals
 
 
-YEAR = CONFIG['year']
-FUDGES = CONFIG.get('fudges', {})
-
-
-def get_current():
-    totals, msg = checked_totals(CONFIG['log'])
+def get_current(config=CONFIG):
+    totals, msg = checked_totals(config.marking_log)
     if msg:
         raise RuntimeError(f'Check returns message "{msg}"')
-    fudge = FUDGES.get(YEAR, 0)
+    fudge = config.get('fudges', {}).get(config.year, 0)
     processed = totals.copy()
     for key, value in totals.items():
         processed[key] = min([value + fudge, 100])
     return processed
+
+
+def read_old_totals(fname):
+    # Old file format
+    with open(fname, 'rt') as fobj:
+        mark_text = fobj.read()
+    marks = OrderedDict()
+    for line in mark_text.splitlines():
+        login, value = line.split(':')
+        login, value = login.strip(), float(value)
+        value = 100 if value > 100 else value
+        marks[login] = value
+    return marks
 
 
 def report_year(marks, year):
@@ -40,15 +52,24 @@ def report_year(marks, year):
     print()
 
 
-def main():
-    iyear = int(YEAR)
+def read_totals(year):
+    root = f'marks_{year}'
+    if exists(root + '.txt'):
+        return read_old_totals(root + '.txt')
+    df = pd.read_csv(root + '.csv')
+    return OrderedDict(zip(df['SIS Login ID'], df.iloc[:, -1]))
+
+
+def main(config=CONFIG):
+    year = config.year
+    iyear = int(year)
     this_year = get_current()
-    last_year = read_totals(f'marks_{iyear-1}.txt')
+    last_year = read_totals(config.year)
     report_year(this_year, iyear)
     report_year(last_year, iyear - 1)
 
-    students = get_students()
-    assignment = CONFIG['assignment']
+    students = config.get_students()
+    assignment = config['assignment']
 
     for login, mark in this_year.items():
         students.at[students['SIS Login ID'] == login, assignment] = mark
@@ -59,4 +80,4 @@ def main():
         row = students[students['SIS Login ID'] == login]
         assert row[assignment].values == mark
 
-    students.to_csv(f'marks_{YEAR}.csv', index=False)
+    students.to_csv(config.marks_fname, index=False)

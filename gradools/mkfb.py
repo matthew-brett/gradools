@@ -6,7 +6,7 @@ from os.path import join as pjoin, isdir
 import re
 from subprocess import Popen, PIPE, check_call
 
-from .mconfig import MARKING_LOG
+from .mconfig import CONFIG
 
 
 STUDENT_SPLITTER = re.compile(r'^##\s+', re.M)
@@ -26,8 +26,8 @@ def prune_part(part):
     return '\n'.join(lines)
 
 
-def get_parts():
-    with open(MARKING_LOG, 'rt') as fobj:
+def get_parts(config=CONFIG):
+    with open(config.marking_log, 'rt') as fobj:
         text = fobj.read()
     parts = STUDENT_SPLITTER.split(text)
     public_parts = {}

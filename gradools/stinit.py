@@ -7,11 +7,11 @@ from argparse import ArgumentParser
 
 NB_TEMPLATE = pjoin('templates', 'grading.Rmd')
 
-from .mconfig import SCORE_LINES, get_students
+from .mconfig import CONFIG
 
 
-def get_init(student_id):
-    students = get_students()
+def get_init(student_id, config=CONFIG):
+    students = CONFIG.get_students()
     # Try login ID, then User ID, then name
     for field in ('SIS Login ID', 'SIS User ID', 'Student'):
         # Coerce to matching dtype
@@ -27,7 +27,8 @@ def get_init(student_id):
     else:
         raise RuntimeError(f"Cannot find student {student_id}")
     name, login = these[['Student', 'SIS Login ID']].iloc[0]
-    return f'## {login}\n\n{SCORE_LINES}\n\nTotal: \n\n{name}\n\n'
+    lines = CONFIG.score_lines
+    return f'## {login}\n\n{lines}\n\nTotal: \n\n{name}\n\n'
 
 
 def write_notebook(login, nb_fname):
