@@ -70,6 +70,7 @@ def main(config=CONFIG):
 
     students = config.get_students()
     assignment = config['assignment']
+    students[assignment] = np.nan
 
     for login, mark in this_year.items():
         students.at[students['SIS Login ID'] == login, assignment] = mark

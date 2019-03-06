@@ -11,7 +11,7 @@ from .mconfig import CONFIG
 
 
 def get_init(student_id, config=CONFIG):
-    students = CONFIG.get_students()
+    students = config.get_students()
     # Try login ID, then User ID, then name
     for field in ('SIS Login ID', 'SIS User ID', 'Student'):
         # Coerce to matching dtype
@@ -27,7 +27,7 @@ def get_init(student_id, config=CONFIG):
     else:
         raise RuntimeError(f"Cannot find student {student_id}")
     name, login = these[['Student', 'SIS Login ID']].iloc[0]
-    lines = CONFIG.score_lines
+    lines = config.score_lines
     return f'## {login}\n\n{lines}\n\nTotal: \n\n{name}\n\n'
 
 
