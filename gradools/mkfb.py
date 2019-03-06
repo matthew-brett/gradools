@@ -39,7 +39,7 @@ def get_parts(config=CONFIG):
     return public_parts
 
 
-def write_parts(parts, out_dir=FEEDBACK_DIR):
+def write_parts(parts, out_dir=FEEDBACK_DIR, has_notebook=False):
     for stid, text in parts.items():
         out_root = pjoin(out_dir, stid)
         proc = Popen(['pandoc', '-f' 'gfm', '-t', 'latex', '-o',
@@ -48,6 +48,8 @@ def write_parts(parts, out_dir=FEEDBACK_DIR):
         out, err = proc.communicate(text.encode('utf8'))
         if err:
             raise RuntimeError(err)
+        if not has_notebook:
+            continue
         check_call(['jupyter', 'nbconvert', stid + '.ipynb',
                     '--to', 'pdf', '--output', out_root + '_nb'])
 
@@ -61,7 +63,7 @@ def main():
     if not isdir(FEEDBACK_DIR):
         os.makedirs(FEEDBACK_DIR)
     parts = get_parts()
-    write_parts(parts)
+    write_parts(parts, has_notebook=CONFIG.get('has_notebook', False))
     write_stids(parts)
 
 
