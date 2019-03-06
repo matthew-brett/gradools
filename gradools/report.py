@@ -56,6 +56,8 @@ def read_totals(year):
     root = f'marks_{year}'
     if exists(root + '.txt'):
         return read_old_totals(root + '.txt')
+    if not exists(root + '.csv'):
+        return None
     df = pd.read_csv(root + '.csv')
     return OrderedDict(zip(df['SIS Login ID'], df.iloc[:, -1]))
 
@@ -66,13 +68,11 @@ def main(config=CONFIG):
     iym1 = iyear - 1
     this_year = get_current()
     report_year(this_year, iyear)
-    try:
-        last_year = read_totals(str(iym1))
-    except FileNotFoundError:
+    last_year = read_totals(str(iym1))
+    if last_year is None:
         print(f'No data for {iym1}')
     else:
         report_year(last_year, iym1)
-
     students = config.get_students()
     assignment = config['assignment']
     students[assignment] = np.nan
