@@ -63,7 +63,7 @@ def main():
     if not isdir(FEEDBACK_DIR):
         os.makedirs(FEEDBACK_DIR)
     parts = get_parts()
-    write_parts(parts, has_notebook=CONFIG.get('has_notebook', False))
+    write_parts(parts, has_notebook='notebooks' in CONFIG)
     write_stids(parts)
 
 

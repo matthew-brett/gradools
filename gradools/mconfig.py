@@ -1,7 +1,7 @@
 """ Tools for grading
 """
 
-from os.path import exists
+from os.path import exists, join as pjoin
 from collections import OrderedDict
 
 import pytoml as toml
@@ -24,6 +24,9 @@ class Config:
 
     def __getitem__(self, key):
         return self.params[key]
+
+    def __contains__(self, key):
+        return key in self.params
 
     def get(self, key, *args, **kwargs):
         return self.params.get(key, *args, **kwargs)
@@ -64,6 +67,13 @@ class Config:
     @property
     def marks_fname(self):
         return f'marks_{self.year}.csv'
+
+    @property
+    def nb_template(self):
+        template = self.get('notebooks', {}).get('template')
+        if template is None:
+            return None
+        return pjoin(*template.split('/'))
 
     def get_students(self):
         if not exists(self.student_fname):

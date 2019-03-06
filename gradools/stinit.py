@@ -2,10 +2,8 @@
 """ Generate initial marking scheme, maybe notebook for student
 """
 
-from os.path import exists, join as pjoin
+from os.path import exists
 from argparse import ArgumentParser
-
-NB_TEMPLATE = pjoin('templates', 'grading.Rmd')
 
 from .mconfig import CONFIG
 
@@ -31,10 +29,8 @@ def get_init(student_id, config=CONFIG):
     return f'## {login}\n\n{lines}\n\nTotal: \n\n{name}\n\n'
 
 
-def write_notebook(login, nb_fname):
-    if not exists(NB_TEMPLATE):
-        return
-    with open(NB_TEMPLATE, 'rt') as fobj:
+def write_notebook(login, nb_fname, nb_template):
+    with open(nb_template, 'rt') as fobj:
         template = fobj.read()
     nb = template.replace('{{ login }}', login)
     with open(nb_fname, 'wt') as fobj:
@@ -48,6 +44,7 @@ def main():
                         help='If specified, overwrite existing notebook')
     args = parser.parse_args()
     nb_fname = args.login + '.Rmd'
-    if not exists(nb_fname) or args.clobber:
-        write_notebook(args.login, nb_fname)
+    nb_template = CONFIG.nb_template
+    if nb_template and (not exists(nb_fname) or args.clobber):
+        write_notebook(args.login, nb_fname, nb_template)
     print(get_init(args.login))
