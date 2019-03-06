@@ -63,10 +63,15 @@ def read_totals(year):
 def main(config=CONFIG):
     year = config.year
     iyear = int(year)
+    iym1 = iyear - 1
     this_year = get_current()
-    last_year = read_totals(config.year)
     report_year(this_year, iyear)
-    report_year(last_year, iyear - 1)
+    try:
+        last_year = read_totals(str(iym1))
+    except FileNotFoundError:
+        print(f'No data for {iym1}')
+    else:
+        report_year(last_year, iym1)
 
     students = config.get_students()
     assignment = config['assignment']
