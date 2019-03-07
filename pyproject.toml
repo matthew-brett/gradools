@@ -8,6 +8,10 @@ author = "Matthew Brett"
 author-email = "matthew.brett@gmail.com"
 classifiers = ["License :: OSI Approved :: BSD License"]
 description-file="README.md"
+requires = [
+    'pytoml',
+    'pandas'
+]
 
 [tool.flit.scripts]
 gdo-check = "gradools.check:main"

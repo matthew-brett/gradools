@@ -5,10 +5,14 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from .mconfig import CONFIG
 from .check import checked_totals
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
 
 
 def get_current(config=CONFIG):

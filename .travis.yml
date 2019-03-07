@@ -1,0 +1,69 @@
+language: python
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+env:
+    global:
+        # tornado is a dependency of jupyter_client - see:
+        # https://github.com/jupyter/jupyter_client/issues/321
+        - DEPENDS="pandas pytoml"
+        - PKG_NAME=gradools
+        - INSTALL_TYPE="pip"
+        # URL for extra wheel repo
+        - EXTRA_WHEELS="https://5cf40426d9f06eb7461d-6fe47d9331aba7cd62fc36c7196769e4.ssl.cf2.rackcdn.com"
+
+python:
+    - 3.7
+
+matrix:
+  include:
+    - python: 3.6
+      env:
+        - COVERAGE=1
+        - DOCTESTS=1
+    # Test pre-release versions of everything
+    - python: 3.6
+      env:
+        - EXTRA_PIP_FLAGS="--pre"
+
+before_install:
+    # Update virtualenv etc
+    - pip install -U virtualenv
+    - virtualenv --python=python venv
+    - source venv/bin/activate
+    - python -m pip install --upgrade pip wheel
+    - python --version  # just to check
+    - pip install pytest # always
+    - if [ -n "$DEPENDS" ]; then
+        pip install $EXTRA_PIP_FLAGS -f $EXTRA_WHEELS $DEPENDS;
+      fi
+    - if [ -n "$COVERAGE" ]; then
+      pip install coverage;
+      pip install codecov;
+      fi
+
+install:
+    - |
+      pip install .
+
+script:
+    - |
+        pip install -r test-requirements.txt
+        # Change into an innocuous directory and find tests from installation
+        mkdir for_testing
+        cd for_testing
+        if [ -n "$COVERAGE" ]; then
+          cp ../.coveragerc .;
+          pip install pytest-cov
+          COVER_ARGS="--cov=$PKG_NAME";
+        fi
+        if [ -n "$DOCTESTS" ]; then
+          DOCTEST_ARGS="--doctest-modules"
+        fi
+        pytest $COVER_ARGS $DOCTEST_ARGS ../$PKG_NAME
+      fi
+
+after_success:
+    - if [ -n "$COVERAGE" ]; then codecov; fi
