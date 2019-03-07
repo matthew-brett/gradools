@@ -23,8 +23,12 @@ matrix:
       env:
         - COVERAGE=1
         - DOCTESTS=1
+    - python: 3.6
+      env:
     # Test pre-release versions of everything
     - python: 3.6
+      env:
+        - INSTALL_TYPE=flit
       env:
         - EXTRA_PIP_FLAGS="--pre"
 
@@ -46,7 +50,12 @@ before_install:
 
 install:
     - |
-      pip install .
+      if [ "$INSTALL_TYPE" == "pip" ]; then
+        pip install .
+      elif [ "$INSTALL_TYPE" == "flit" ]; then
+        pip install flit
+        flit install .
+      fi
 
 script:
     - |
