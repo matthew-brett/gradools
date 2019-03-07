@@ -59,20 +59,20 @@ install:
 
 script:
     - |
-        pip install -r test-requirements.txt
-        # Change into an innocuous directory and find tests from installation
-        mkdir for_testing
-        cd for_testing
-        if [ -n "$COVERAGE" ]; then
-          cp ../.coveragerc .;
-          pip install pytest-cov
-          COVER_ARGS="--cov=$PKG_NAME";
-        fi
-        if [ -n "$DOCTESTS" ]; then
-          DOCTEST_ARGS="--doctest-modules"
-        fi
-        pytest $COVER_ARGS $DOCTEST_ARGS ../$PKG_NAME
+      pip install -r test-requirements.txt
+      # Change into an innocuous directory and find tests from installation
+      mkdir for_testing
+      cd for_testing
+      if [ -n "$COVERAGE" ]; then
+        cp ../.coveragerc .;
+        pip install pytest-cov
+        COVER_ARGS="--cov=$PKG_NAME";
       fi
+      if [ -n "$DOCTESTS" ]; then
+        DOCTEST_ARGS="--doctest-modules"
+      fi
+      pytest $COVER_ARGS $DOCTEST_ARGS ../$PKG_NAME
+
 
 after_success:
     - if [ -n "$COVERAGE" ]; then codecov; fi
