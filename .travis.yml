@@ -17,6 +17,7 @@ env:
 matrix:
   include:
     - python: 3.7
+      dist: xenial
     - python: 3.6
       env:
         - COVERAGE=1
