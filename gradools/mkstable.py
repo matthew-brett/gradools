@@ -3,20 +3,7 @@
 
 from argparse import ArgumentParser
 
-import pandas as pd
-
-_REQUIRED = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
-
-
-def to_minimal_df(full_gradebook):
-    df = pd.read_csv(full_gradebook)
-    # Some strange unicode characters in 'Student' with a default read
-    df.rename(columns={df.columns[0]: 'Student'}, inplace=True)
-    df = df[list(_REQUIRED)]
-    df = df.dropna(subset = ['SIS User ID'])
-    df['SIS User ID'] = df['SIS User ID'].astype(int)
-    return df
-
+from .canvastools import to_minimal_df
 
 def main():
     parser = ArgumentParser()
