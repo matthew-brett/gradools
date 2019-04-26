@@ -7,7 +7,9 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from gradools.canvastools import to_minimal_df, fname2key
+from gradools.canvastools import to_minimal_df, fname2key, CanvasError
+
+import pytest
 
 
 DATA_DIR = pjoin(dirname(__file__), 'data')
@@ -25,6 +27,12 @@ def test_to_minimal_df():
 
 
 def test_fname2key():
+    assert (fname2key('last_first139727_anything')
+            == ('Last', 'First', '139727'))
+    with pytest.raises(CanvasError):
+        fname2key('last_first139727anything')
+    with pytest.raises(CanvasError):
+        fname2key('lastfirst139727_anything')
     assert (fname2key(
         'last_first139727_question_815185_4738509_First Last_bio240_r_2.Rmd'
     ) == ('Last', 'First', '139727'))
