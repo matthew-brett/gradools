@@ -16,7 +16,8 @@ DATA_DIR = pjoin(dirname(__file__), 'data')
 
 
 def test_to_minimal_df():
-    df = to_minimal_df(pjoin(DATA_DIR, 'full_gb_example.csv'))
+    csv_path = pjoin(DATA_DIR, 'full_gb_example.csv')
+    df = to_minimal_df(csv_path)
     data = OrderedDict((('Student', ['Matthew Brett', 'Martin Brett']),
                         ('SIS User ID', [9876543, 1357908]),
                         ('SIS Login ID', ['mb312', 'mb110']),
@@ -24,6 +25,9 @@ def test_to_minimal_df():
     exp_df = pd.DataFrame(data)
     exp_df.index = df.index
     assert np.all(df == exp_df)
+    # Can also pass DataFrame
+    df2 = to_minimal_df(pd.read_csv(csv_path))
+    assert np.all(df2 == exp_df)
 
 
 def test_fname2key():

@@ -17,8 +17,21 @@ class CanvasError(ValueError):
 
 def to_minimal_df(full_gradebook):
     """ Return template dataframe from full gradebook
+
+    Parameters
+    ----------
+    full_gradebook : str or DataFrame
+        Filename of full gradebook as downloaded from Canvas, or DataFrame
+        loaded from same.
+
+    Returns
+    -------
+    mini_df : DataFrame
+        DataFrame containing minimial fields for upload to Canvas, and with not
+        assignment grade columns.
     """
-    df = pd.read_csv(full_gradebook)
+    df = (full_gradebook if hasattr(full_gradebook, 'columns') else
+          pd.read_csv(full_gradebook))
     # Some strange unicode characters in 'Student' with a default read
     df.rename(columns={df.columns[0]: 'Student'}, inplace=True)
     df = df[list(_REQUIRED)]
