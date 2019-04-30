@@ -1,9 +1,9 @@
-""" gradool
+""" gradools
 
-Stuff I use for grading
+Some grading tools.
 """
 
-__version__ = '0.1.a'
+__version__ = '0.1a0'
 
 from . import check
 from . import mconfig
