@@ -3,6 +3,7 @@
 
 import os
 from os.path import join as pjoin, isdir
+from shutil import rmtree
 import re
 from subprocess import Popen, PIPE, check_call
 
@@ -60,8 +61,9 @@ def write_stids(stids, out_dir=FEEDBACK_DIR):
 
 
 def main():
-    if not isdir(FEEDBACK_DIR):
-        os.makedirs(FEEDBACK_DIR)
+    if isdir(FEEDBACK_DIR):
+        rmtree(FEEDBACK_DIR)
+    os.makedirs(FEEDBACK_DIR)
     parts = get_parts()
     write_parts(parts, has_notebook='notebooks' in CONFIG)
     write_stids(parts)
