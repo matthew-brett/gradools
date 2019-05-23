@@ -23,11 +23,26 @@ def test_to_minimal_df():
                         ('SIS Login ID', ['mb312', 'mb110']),
                         ('Section', ['A Module Title'] * 2)))
     exp_df = pd.DataFrame(data)
-    exp_df.index = df.index
     assert np.all(df == exp_df)
+    assert df['SIS User ID'].dtype == np.dtype(int)
     # Can also pass DataFrame
-    df2 = to_minimal_df(pd.read_csv(csv_path))
+    full_df = pd.read_csv(csv_path)
+    df2 = to_minimal_df(full_df)
     assert np.all(df2 == exp_df)
+    # Can pass field names
+    df_less = to_minimal_df(full_df, ('SIS User ID', 'Student'))
+    data = OrderedDict((
+        ('SIS User ID', [9876543, 1357908]),
+        ('Student', ['Matthew Brett', 'Martin Brett']),
+    ))
+    assert np.all(df_less == pd.DataFrame(data))
+    assert df_less['SIS User ID'].dtype == np.dtype(int)
+    df_less2 = to_minimal_df(full_df, ('Section', 'SIS Login ID'))
+    data = OrderedDict((
+        ('Section', ['A Module Title'] * 2),
+        ('SIS Login ID', ['mb312', 'mb110']),
+    ))
+    assert np.all(df_less2 == pd.DataFrame(data))
 
 
 def test_fname2key():
