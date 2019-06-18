@@ -2,6 +2,7 @@
 """
 
 import sys
+import re
 
 from collections import OrderedDict
 
@@ -56,7 +57,7 @@ def get_lists(contents, required_fields, optional_fields):
         if line.strip() == '':
             continue
         if state == 'before':
-            if line.startswith('##'):
+            if re.match('##[^#]', line):
                 state = 'in-list'
                 name = line.split()[1]
                 mark_list = {}

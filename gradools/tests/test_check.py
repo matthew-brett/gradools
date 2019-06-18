@@ -25,3 +25,17 @@ def test_get_lists():
     assert msg == ("Did not expect key: 'baz' here\n"
                    "Required fields bar, foo not present\n"
                    "Expecting total 13.0 for someone")
+
+    res, msg = get_lists("""
+
+## someone
+
+* baz : 13
+
+### Another header not relevant
+
+Some text
+""", ('foo', 'bar'), ())
+    assert msg == ("Did not expect key: 'baz' here\n"
+                   "Required fields bar, foo not present\n"
+                   "Expecting total 13.0 for someone")
