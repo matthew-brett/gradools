@@ -20,7 +20,7 @@ class CanvasError(ValueError):
     """
 
 
-def to_minimal_df(full_gradebook, fields=None):
+def to_minimal_df(full_gradebook, fields=None, int_cols=None):
     """ Return template dataframe from full gradebook
 
     Parameters
@@ -31,14 +31,27 @@ def to_minimal_df(full_gradebook, fields=None):
     fields : None or sequence, optional
         List of fields to copy, or None (default).  If None, results in minimal
         set of fields to upload to Canvas.
+    int_cols : None or sequence, optional
+        List of fields to set as integer, or None (default).  If None, set 'SIS
+        User ID' to int, if present in `fields`.
 
     Returns
     -------
     mini_df : DataFrame
         DataFrame containing rows (students) from `full_gradebook`, and fields
         specified in `fields`.
+
+    Raises
+    ------
+    ValueError
+        If `int_cols` contains field names not in `fields`.
     """
     fields = _REQUIRED if fields is None else fields
+    int_cols = (set(_TO_INT_COLS).intersection(fields) if int_cols is None
+                else set(int_cols))
+    missing_int_cols = int_cols.difference(fields)
+    if missing_int_cols:
+        raise ValueError('"int_cols" %s not in "fields"' % (missing_int_cols,))
     df = (full_gradebook if hasattr(full_gradebook, 'columns') else
           pd.read_csv(full_gradebook))
     # Some strange unicode characters in 'Student' with a default read
@@ -46,7 +59,7 @@ def to_minimal_df(full_gradebook, fields=None):
     # First row is Points Possible, with NaN for user id
     df = df.dropna(subset = ['SIS User ID'])
     df = df[list(fields)]
-    for col in _TO_INT_COLS:
+    for col in int_cols:
         if col not in df:
             continue
         df[col] = df[col].astype(int)

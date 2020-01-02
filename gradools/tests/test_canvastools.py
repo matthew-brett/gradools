@@ -16,6 +16,7 @@ DATA_DIR = pjoin(dirname(__file__), 'data')
 
 
 def test_to_minimal_df():
+    ndt = np.dtype
     csv_path = pjoin(DATA_DIR, 'full_gb_example.csv')
     df = to_minimal_df(csv_path)
     data = OrderedDict((('Student', ['Matthew Brett', 'Martin Brett']),
@@ -24,7 +25,7 @@ def test_to_minimal_df():
                         ('Section', ['A Module Title'] * 2)))
     exp_df = pd.DataFrame(data)
     assert np.all(df == exp_df)
-    assert df['SIS User ID'].dtype == np.dtype(int)
+    assert df['SIS User ID'].dtype == ndt(int)
     # Can also pass DataFrame
     full_df = pd.read_csv(csv_path)
     df2 = to_minimal_df(full_df)
@@ -36,13 +37,32 @@ def test_to_minimal_df():
         ('Student', ['Matthew Brett', 'Martin Brett']),
     ))
     assert np.all(df_less == pd.DataFrame(data))
-    assert df_less['SIS User ID'].dtype == np.dtype(int)
+    assert df_less['SIS User ID'].dtype == ndt(int)
     df_less2 = to_minimal_df(full_df, ('Section', 'SIS Login ID'))
     data = OrderedDict((
         ('Section', ['A Module Title'] * 2),
         ('SIS Login ID', ['mb312', 'mb110']),
     ))
     assert np.all(df_less2 == pd.DataFrame(data))
+    # Can pass fields to be made into integers.
+    df_1 = to_minimal_df(full_df, ('SIS User ID', 'ID', 'Student'))
+    data = OrderedDict((
+        ('SIS User ID', [9876543, 1357908]),
+        ('ID', [12345, 567876]),
+        ('Student', ['Matthew Brett', 'Martin Brett']),
+    ))
+    assert np.all(df_1 == pd.DataFrame(data))
+    assert df_1.dtypes.equals(pd.Series(
+        {'SIS User ID': ndt(int), 'ID': ndt(float), 'Student': ndt(object)}))
+    df_2 = to_minimal_df(full_df, ('SIS User ID', 'ID', 'Student'),
+                         ('ID',))
+    assert np.all(df_2 == pd.DataFrame(data))
+    assert df_2.dtypes.equals(pd.Series(
+        {'SIS User ID': ndt(float), 'ID': ndt(int), 'Student': ndt(object)}))
+    # to_int field not in fields - error.
+    with pytest.raises(ValueError):
+        to_minimal_df(full_df, ('SIS User ID', 'ID', 'Student'),
+                      ('Foo',))
 
 
 def test_fname2key():
