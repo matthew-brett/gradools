@@ -1,0 +1,24 @@
+.. -*- mode: rst -*-
+.. vim:ft=rst
+
+.. _changelog:
+
+##################
+Gradools Changelog
+##################
+
+See: http://github.com/matthew-brett/gradools
+
+********
+Releases
+********
+
+* 0.1a1 (Friday 2nd January 2020)
+
+  A Happy New Year to one and all.
+
+  * Add ability to customize dtypes from read of Canvas grades.
+
+* 0.1a0 (Tuesday 18th June, 2019)
+
+  * First alpha release.
