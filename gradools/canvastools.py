@@ -12,9 +12,6 @@ _FNAME_RE = re.compile(r'([a-z\-_]+)(\d+)_')
 # Columns required for upload to Canvas
 _REQUIRED = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
 
-# Columns from list above that must be integers
-_TO_INT_COLS = ('SIS User ID',)
-
 
 class CanvasError(ValueError):
     """ Exception for violations of Canvas rules
@@ -63,11 +60,9 @@ def to_minimal_df(full_gradebook, fields=None, dtypes=None):
     # point.  No longer seems to be true.  Pandas version?
     assert df.columns[0].endswith('Student')
     df.rename(columns={df.columns[0]: 'Student'}, inplace=True)
-    # First row is Points Possible, with NaN for user id.  Drop.
-    first_row = df.iloc[0]
-    assert first_row.loc['Student'].strip() == 'Points Possible'
-    assert pd.isna(first_row.loc[sis_id])
-    df = df.iloc[1:, :]
+    # Drop invalid rows, with NA for SIS User ID.  These include first one or
+    # two rows, and Test Student at end.
+    df = df[~pd.isna(df[sis_id])]
     # Restrict to requested columns.
     df = df.loc[:, list(fields)]
     # Set dtypes
