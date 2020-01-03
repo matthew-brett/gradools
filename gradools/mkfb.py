@@ -1,4 +1,4 @@
-""" Split grading log into student feedback fragments, build PDFS
+""" Split grading log into student feedback fragments, build PDFs
 """
 
 import os
