@@ -44,7 +44,7 @@ def test_to_minimal_df():
         ('SIS Login ID', ['mb312', 'mb110']),
     ))
     assert np.all(df_less2 == pd.DataFrame(data))
-    # Can pass fields to be made into integers.
+    # Can pass data types for fields.
     df_1 = to_minimal_df(full_df, ('SIS User ID', 'ID', 'Student'))
     data = OrderedDict((
         ('SIS User ID', [9876543, 1357908]),
@@ -55,14 +55,19 @@ def test_to_minimal_df():
     assert df_1.dtypes.equals(pd.Series(
         {'SIS User ID': ndt(int), 'ID': ndt(float), 'Student': ndt(object)}))
     df_2 = to_minimal_df(full_df, ('SIS User ID', 'ID', 'Student'),
-                         ('ID',))
+                         {'ID': int})
     assert np.all(df_2 == pd.DataFrame(data))
     assert df_2.dtypes.equals(pd.Series(
-        {'SIS User ID': ndt(float), 'ID': ndt(int), 'Student': ndt(object)}))
-    # to_int field not in fields - error.
+        {'SIS User ID': ndt(int), 'ID': ndt(int), 'Student': ndt(object)}))
+    df_3 = to_minimal_df(full_df, ('SIS User ID', 'ID', 'Student'),
+                         {'SIS User ID': object, 'ID': np.dtype(int)})
+    assert np.all(df_3 == pd.DataFrame(data))
+    assert df_3.dtypes.equals(pd.Series(
+        {'SIS User ID': ndt(object), 'ID': ndt(int), 'Student': ndt(object)}))
+    # field for dtype not in fields - error.
     with pytest.raises(ValueError):
         to_minimal_df(full_df, ('SIS User ID', 'ID', 'Student'),
-                      ('Foo',))
+                      {'Foo': object})
 
 
 def test_fname2key():

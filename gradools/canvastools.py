@@ -4,6 +4,7 @@
 from os.path import split as psplit
 import re
 
+import numpy as np
 import pandas as pd
 
 _FNAME_RE = re.compile(r'([a-z\-_]+)(\d+)_')
@@ -20,7 +21,7 @@ class CanvasError(ValueError):
     """
 
 
-def to_minimal_df(full_gradebook, fields=None, int_cols=None):
+def to_minimal_df(full_gradebook, fields=None, dtypes=None):
     """ Return template dataframe from full gradebook
 
     Parameters
@@ -31,9 +32,10 @@ def to_minimal_df(full_gradebook, fields=None, int_cols=None):
     fields : None or sequence, optional
         List of fields to copy, or None (default).  If None, results in minimal
         set of fields to upload to Canvas.
-    int_cols : None or sequence, optional
-        List of fields to set as integer, or None (default).  If None, set 'SIS
-        User ID' to int, if present in `fields`.
+    dtypes : None or sequence, optional
+        Dictionary of field: dtype key: value or None (default).  Unless
+        overridden by specific entry in `dtypes`, set 'SIS User ID' to int
+        dtype.
 
     Returns
     -------
@@ -44,26 +46,34 @@ def to_minimal_df(full_gradebook, fields=None, int_cols=None):
     Raises
     ------
     ValueError
-        If `int_cols` contains field names not in `fields`.
+        If `dtypes` contains field names not in `fields`.
     """
+    sis_id = 'SIS User ID'
     fields = _REQUIRED if fields is None else fields
-    int_cols = (set(_TO_INT_COLS).intersection(fields) if int_cols is None
-                else set(int_cols))
-    missing_int_cols = int_cols.difference(fields)
-    if missing_int_cols:
-        raise ValueError('"int_cols" %s not in "fields"' % (missing_int_cols,))
+    dtypes = {} if dtypes is None else dtypes
+    if sis_id in fields and sis_id not in dtypes:
+        dtypes[sis_id] = np.dtype(int)
+    missing_dtype_names = set(dtypes).difference(fields)
+    if missing_dtype_names:
+        raise ValueError('"dtypes" keys %s not in "fields"' %
+                         (missing_dtype_names,))
     df = (full_gradebook if hasattr(full_gradebook, 'columns') else
           pd.read_csv(full_gradebook))
-    # Some strange unicode characters in 'Student' with a default read
+    # Some strange unicode characters in 'Student' with a default read, at some
+    # point.  No longer seems to be true.  Pandas version?
+    assert df.columns[0].endswith('Student')
     df.rename(columns={df.columns[0]: 'Student'}, inplace=True)
-    # First row is Points Possible, with NaN for user id
-    df = df.dropna(subset = ['SIS User ID'])
-    df = df[list(fields)]
-    for col in int_cols:
-        if col not in df:
-            continue
-        df[col] = df[col].astype(int)
-    # Reset to default integer index
+    # First row is Points Possible, with NaN for user id.  Drop.
+    first_row = df.iloc[0]
+    assert first_row.loc['Student'].strip() == 'Points Possible'
+    assert pd.isna(first_row.loc[sis_id])
+    df = df.iloc[1:, :]
+    # Restrict to requested columns.
+    df = df.loc[:, list(fields)]
+    # Set dtypes
+    for col, dt in dtypes.items():
+        df[col] = df[col].astype(dt)
+    # Reset to default integer index.
     return df.reset_index(drop=True)
 
 
