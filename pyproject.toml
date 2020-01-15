@@ -10,9 +10,11 @@ home-page="https://github.com/matthew-brett/gradools"
 classifiers = ["License :: OSI Approved :: BSD License",
                "Programming Language :: Python :: 3"]
 description-file="README.md"
+# Check against requirements.txt
 requires = [
     'pytoml',
-    'pandas'
+    'pandas',
+    'regex'
 ]
 requires-python=">=3.6"
 
