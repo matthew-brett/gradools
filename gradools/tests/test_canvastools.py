@@ -89,3 +89,6 @@ def test_fname2key():
     assert (fname2key(
         'cholmondley-warner_james124011_question_815185_4782899_Some Text.Rmd'
     ) == ('Cholmondley-Warner', 'James', '124011'))
+    assert (fname2key(
+        'çakajmikey_157269_1832553_other_stuff.Rmd'
+    ) == ('Çakajmikey', '', '157269'))

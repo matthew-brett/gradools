@@ -2,12 +2,14 @@
 """
 
 from os.path import split as psplit
-import re
+import regex
 
 import numpy as np
 import pandas as pd
 
-_FNAME_RE = re.compile(r'([a-z\-_]+)(\d+)_')
+# Canvas filename.  p{Ll} is lower case letter in Unicode, specific to regex
+# package.
+_FNAME_RE = regex.compile(r'([\p{Ll}\-_]+)(?:LATE_)?(\d+)_')
 
 # Columns required for upload to Canvas
 _REQUIRED = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
