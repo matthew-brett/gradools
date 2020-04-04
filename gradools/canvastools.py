@@ -8,8 +8,9 @@ import numpy as np
 import pandas as pd
 
 # Canvas filename.  p{Ll} is lower case letter in Unicode, specific to regex
-# package.
-_FNAME_RE = regex.compile(r'([\p{Ll}\-_]+)(?:LATE_)?(\d+)_')
+# package. \u0308 is a combining diaeresis, as in Brontë.
+# https://www.fileformat.info/info/unicode/char/0308/index.htm
+_FNAME_RE = regex.compile(r'([\p{Ll}\u0308\-_]+)(?:LATE_)?(\d+)_')
 
 # Columns required for upload to Canvas
 _REQUIRED = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
