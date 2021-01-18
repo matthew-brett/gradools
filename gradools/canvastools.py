@@ -13,7 +13,10 @@ import pandas as pd
 _FNAME_RE = regex.compile(r'([\p{Ll}\u0308\-_]+)(?:LATE_)?(\d+)_')
 
 # Columns required for upload to Canvas
-_REQUIRED = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
+REQUIRED_COL_NAMES = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
+
+# For back compatibility
+_REQUIRED = REQUIRED_COL_NAMES
 
 
 class CanvasError(ValueError):
@@ -49,7 +52,7 @@ def to_minimal_df(full_gradebook, fields=None, dtypes=None):
         If `dtypes` contains field names not in `fields`.
     """
     sis_id = 'SIS User ID'
-    fields = _REQUIRED if fields is None else fields
+    fields = REQUIRED_COL_NAMES if fields is None else fields
     dtypes = {} if dtypes is None else dtypes
     if sis_id in fields and sis_id not in dtypes:
         dtypes[sis_id] = np.dtype(int)
