@@ -83,12 +83,21 @@ def test_fname2key():
     fname = 'brett_matthew124954_question_815185_4781127_an_exercise.Rmd'
     assert (fname2key(fname) == ('Brett', 'Matthew', '124954'))
     assert (fname2key(abspath(fname)) == ('Brett', 'Matthew', '124954'))
+    # More than one first name.
     assert (fname2key(
         'hoffman_philip_seymour111617_question_815185_4772418_an_exercise '
         'Philip Hoffman.Rmd') == ('Hoffman', 'Philip Seymour', '111617'))
+    # Hyphen in surname.
     assert (fname2key(
         'cholmondley-warner_james124011_question_815185_4782899_Some Text.Rmd'
     ) == ('Cholmondley-Warner', 'James', '124011'))
+    # Non-ascii character.
     assert (fname2key(
         'çakajmikey_157269_1832553_other_stuff.Rmd'
     ) == ('Çakajmikey', '', '157269'))
+    # More recent formats - names not separated
+    fname = 'brettmatthew_238123_45695381_an_exercise.ipynb'
+    assert (fname2key(fname) == ('Brettmatthew', '', '238123'))
+    # LATE also allowed.
+    fname = 'brettmatthew_LATE_238123_45695381_an_exercise.ipynb'
+    assert (fname2key(fname) == ('Brettmatthew', '', '238123'))
