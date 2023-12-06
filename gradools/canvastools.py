@@ -15,6 +15,9 @@ _FNAME_RE = regex.compile(r'([\p{Ll}\u0308\-_]+)(?:LATE_)?(\d+)_')
 # Columns required for upload to Canvas
 REQUIRED_COL_NAMES = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
 
+# Primary key for student in tables.
+CANVAS_ID_COL = 'SIS User ID'
+
 # For back compatibility
 _REQUIRED = REQUIRED_COL_NAMES
 
@@ -51,11 +54,10 @@ def to_minimal_df(full_gradebook, fields=None, dtypes=None):
     ValueError
         If `dtypes` contains field names not in `fields`.
     """
-    sis_id = 'SIS User ID'
     fields = REQUIRED_COL_NAMES if fields is None else fields
     dtypes = {} if dtypes is None else dtypes
-    if sis_id in fields and sis_id not in dtypes:
-        dtypes[sis_id] = np.dtype(int)
+    if CANVAS_ID_COL in fields and CANVAS_ID_COL not in dtypes:
+        dtypes[CANVAS_ID_COL] = np.dtype(int)
     missing_dtype_names = set(dtypes).difference(fields)
     if missing_dtype_names:
         raise ValueError('"dtypes" keys %s not in "fields"' %
@@ -68,7 +70,7 @@ def to_minimal_df(full_gradebook, fields=None, dtypes=None):
     df.rename(columns={df.columns[0]: 'Student'}, inplace=True)
     # Drop invalid rows, with NA for SIS User ID.  These include first one or
     # two rows, and Test Student at end.
-    df = df[~pd.isna(df[sis_id])]
+    df = df[~pd.isna(df[CANVAS_ID_COL])]
     # Restrict to requested columns.
     df = df.loc[:, list(fields)]
     # Set dtypes
