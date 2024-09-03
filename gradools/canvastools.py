@@ -10,7 +10,13 @@ import pandas as pd
 # Canvas filename.  p{Ll} is lower case letter in Unicode, specific to regex
 # package. \u0308 is a combining diaeresis, as in Brontë.
 # https://www.fileformat.info/info/unicode/char/0308/index.htm
-_FNAME_RE = regex.compile(r'([\p{Ll}\u0308\-_]+)(?:LATE_)?(\d+)_')
+_FNAME_RE = regex.compile(
+    r'''
+    (?P<name>[\p{Ll}\u0308\-_]+)
+    (?:LATE_)?
+    (?P<id_no>\d+)_
+    ''',
+    flags=regex.VERBOSE)
 
 # Columns required for upload to Canvas
 REQUIRED_COL_NAMES = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
@@ -86,7 +92,10 @@ def fname2key(fname):
     path, name = psplit(fname)
     match = _FNAME_RE.match(name)
     if match is None:
-        raise CanvasError('Bad filename', name)
+        raise CanvasError(
+            f'Filename "{name}" should be of form name, optional "LATE_", '
+            'followed by the student ID number, e.g '
+            '"brettmatthew_LATE_124_something_else.zip"')
     names, number = match.groups()
     names = [_capitalize(n) for n in names.split('_')]
     if len(names) == 1:
