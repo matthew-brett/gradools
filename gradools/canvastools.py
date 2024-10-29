@@ -18,13 +18,19 @@ _FNAME_RE = regex.compile(
     ''',
     flags=regex.VERBOSE)
 
-# Columns required for upload to Canvas
-REQUIRED_COL_NAMES = ('Student', 'SIS User ID', 'SIS Login ID', 'Section')
+# Column name, dtypes required for upload to Canvas.
+# None means - dtype not constrained.
+REQUIRED_COLS = {'Student': None,
+                 'SIS User ID': np.dtype(int),
+                 'SIS Login ID': None,
+                 'Section': None,
+                }
 
 # Primary key for student in tables.
 CANVAS_ID_COL = 'SIS User ID'
 
 # For back compatibility
+REQUIRED_COL_NAMES = tuple(REQUIRED_COLS)
 _REQUIRED = REQUIRED_COL_NAMES
 
 
@@ -43,11 +49,11 @@ def to_minimal_df(full_gradebook, fields=None, dtypes=None):
         loaded from same.
     fields : None or sequence, optional
         List of fields to copy, or None (default).  If None, results in minimal
-        set of fields to upload to Canvas.
-    dtypes : None or sequence, optional
-        Dictionary of field: dtype key: value or None (default).  Unless
-        overridden by specific entry in `dtypes`, set 'SIS User ID' to int
-        dtype.
+        set of fields to upload to Canvas (keys in ``REQUIRED_COLS``
+        dictionary).
+    dtypes : None or dict, optional
+        Dictionary of field: dtype key: value or None (default).  None gives
+        the default mappings from the ``REQUIRED_COLS`` dictionary.
 
     Returns
     -------
@@ -60,27 +66,25 @@ def to_minimal_df(full_gradebook, fields=None, dtypes=None):
     ValueError
         If `dtypes` contains field names not in `fields`.
     """
-    fields = REQUIRED_COL_NAMES if fields is None else fields
-    dtypes = {} if dtypes is None else dtypes
-    if CANVAS_ID_COL in fields and CANVAS_ID_COL not in dtypes:
-        dtypes[CANVAS_ID_COL] = np.dtype(int)
-    missing_dtype_names = set(dtypes).difference(fields)
-    if missing_dtype_names:
-        raise ValueError('"dtypes" keys %s not in "fields"' %
-                         (missing_dtype_names,))
+    fields = tuple(REQUIRED_COLS) if fields is None else fields
+    dts = {n: d for n, d in REQUIRED_COLS.items() if d and (n in fields)}
+    if dtypes:
+        bad_cols = set(dtypes).difference(fields)
+        if bad_cols:
+            raise ValueError('Odd names "{}" in dtypes {}'.format(
+                ', '.join(bad_cols), dtypes))
+        dts.update({n: np.dtype(d) for n, d in dtypes.items()})
     df = (full_gradebook if hasattr(full_gradebook, 'columns') else
           pd.read_csv(full_gradebook))
     # Some strange unicode characters in 'Student' with a default read, at some
     # point.  No longer seems to be true.  Pandas version?
     assert df.columns[0].endswith('Student')
-    df.rename(columns={df.columns[0]: 'Student'}, inplace=True)
+    df = df.rename(columns={df.columns[0]: 'Student'})
     # Drop invalid rows, with NA for SIS User ID.  These include first one or
-    # two rows, and Test Student at end.
-    df = df[~pd.isna(df[CANVAS_ID_COL])]
-    # Restrict to requested columns.
-    df = df.loc[:, list(fields)]
+    # two rows, and Test Student at end.  Restrict to requested columns.
+    df = df.loc[~pd.isna(df[CANVAS_ID_COL]), list(fields)]
     # Set dtypes
-    for col, dt in dtypes.items():
+    for col, dt in dts.items():
         df[col] = df[col].astype(dt)
     # Reset to default integer index.
     return df.reset_index(drop=True)
